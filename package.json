@@ -1,17 +1,17 @@
 {
-  "name": "components",
-  "version": "2.0.0",
-  "description": "Web components for DPS",
+  "name": "incidencias",
+  "version": "1.0.0",
+  "description": "Sistema incidencias for DPS",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
     "build": "npm run format && npm run lint && tsc",
-    "format": "prettier --write \"src/**/*.ts\" \"src/**/components/*.ts\"",
+    "format": "prettier --write \"src/*.ts\" \"src/*.ts\"",
     "lint": "tslint -p tsconfig.json"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DPS-ES/components.git"
+    "url": "git+https://github.com/DPS-ES/Incidencias.git"
   },
   "author": "dps",
   "license": "ISC",
@@ -22,8 +22,6 @@
   "devDependencies": {
     "@types/node": "^14.14.8",
     "babel-eslint": "^10.1.0",
-    "clusterize.js": "^0.18.1",
-    "dps-common": "git+https://github.com/DPS-ES/dps-common.git#e7e617d4c045ec4713ba1012c9e7835b7f38cbb7",
     "eslint": "^7.13.0",
     "eslint-config-dps": "git+https://github.com/DPS-ES/eslint-config-dps.git",
     "eslint-config-prettier": "^6.15.0",
@@ -38,9 +36,8 @@
     "tslint-config-prettier": "^1.18.0"
   },
   "dependencies": {
-    "array-flat-polyfill": "^1.0.1",
     "moment": "^2.27.0",
-    "tui-calendar": "^1.13.1",
+    "nodemon": "^2.0.15",
     "typescript": "^4.0.5"
   }
 }
