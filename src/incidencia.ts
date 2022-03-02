@@ -22,7 +22,10 @@ function incidencia(
   gErr = err;
   msg = message;
 
+  console.log({ options, isSGI });
+
   if (options.showIfPerm) {
+    console.log('Calling perm show');
     api
       .get('/incidencias', null, true)
       .then((data: any) => {
@@ -183,6 +186,7 @@ function incidencia(
   });
 
   if (isSGI) {
+    console.log('Calling proyectos');
     api
       .get('/incidencias/proyectos')
       .then(({ proyectos }: any) => {
@@ -343,6 +347,7 @@ function getDataExtraIncidencia() {
 }
 
 function showIncidencia() {
+  console.log('Show incidencia');
   $('#sidenav .create-incidencia').removeClass('hide');
   $('.context-menu').addClass('context-menu-big');
   $('.context-menu .menu-options').appendChild(
