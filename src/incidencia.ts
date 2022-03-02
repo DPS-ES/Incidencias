@@ -1,15 +1,26 @@
 let tradProyectos: any;
+let isSGI: any;
+let msg: any;
 let $: any;
 let M: any;
 let gApi: any;
 let gErr: any;
 
-function incidencia(jquery: any, materialize: any, api: any, err: any) {
+function incidencia(
+  sgi: any,
+  jquery: any,
+  materialize: any,
+  api: any,
+  err: any,
+  message: any
+) {
   tradProyectos = {};
+  isSGI = sgi;
   $ = jquery;
   M = materialize;
   gApi = api;
   gErr = err;
+  msg = message;
   $('#modal-incidencia-crear').removeMe();
   $('#loader-incidencia').removeMe();
   $('body').appendChild(
@@ -31,12 +42,18 @@ function incidencia(jquery: any, materialize: any, api: any, err: any) {
             </dps-select>
             <i data-html="true" class="material-icons tooltipped help-tipo-incidencia" data-position="bottom">help</i>
           </div>
+          ${
+            isSGI
+              ? `
           <div class="input-field modal-proyecto-incidencia">
             <input id="proyecto-incidencia-crear-modal" name="proyecto" class="validate" type="text" autocomplete="off"
-              list="proyecto-incidencia-list-crear-modal" required />
+            list="proyecto-incidencia-list-crear-modal" required />
             <label id="proyecto-incidencia-crear-label" for="proyecto-incidencia-crear-modal">Proyecto</label>
             <datalist id="proyecto-incidencia-list-crear-modal"></datalist>
           </div>
+          `
+              : ''
+          }
           <div id="explicacion-video-incidencia-modal"></div>
           <div class="container-botones hide-on-med-and-down">
             <a class="waves-effect waves-light btn teal" id="grabar-pantalla-incidencia">Grabar pantalla</a>
@@ -146,7 +163,7 @@ function incidencia(jquery: any, materialize: any, api: any, err: any) {
   $('.create-incidencia').onClick(() => {
     $('#tipo-incidencia-crear-modal').val('');
     $('#descripcion-incidencia-crear-modal').val('');
-    $('#proyecto-incidencia-crear-modal').val('');
+    if (isSGI) $('#proyecto-incidencia-crear-modal').val('');
     $('#info-incidencia-modal').val('');
     $('#img-capturar-incidencia').el().src = '';
     $('#video-grabar-incidencia').el().src = '';
@@ -154,31 +171,33 @@ function incidencia(jquery: any, materialize: any, api: any, err: any) {
     M.Sidenav.getInstance($('#sidenav').el()).close();
   });
 
-  api
-    .get('/incidencias/proyectos')
-    .then(({ proyectos }: any) => {
-      const datalist = $('#proyecto-incidencia-list-crear-modal');
-      console.log(proyectos, datalist);
-      proyectos.forEach((p: any) => {
-        tradProyectos[p.nombre] = p.id;
-        datalist.appendChild(
-          $(`<option value="${p.nombre}">${p.nombre}</option>`)
+  if (isSGI) {
+    api
+      .get('/incidencias/proyectos')
+      .then(({ proyectos }: any) => {
+        const datalist = $('#proyecto-incidencia-list-crear-modal');
+        console.log(proyectos, datalist);
+        proyectos.forEach((p: any) => {
+          tradProyectos[p.nombre] = p.id;
+          datalist.appendChild(
+            $(`<option value="${p.nombre}">${p.nombre}</option>`)
+          );
+        });
+        $('#proyecto-incidencia-crear-modal').prop(
+          'pattern',
+          proyectos
+            .map((item: any) =>
+              item.nombre.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')
+            )
+            .join('|')
         );
-      });
-      $('#proyecto-incidencia-crear-modal').prop(
-        'pattern',
-        proyectos
-          .map((item: any) =>
-            item.nombre.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')
-          )
-          .join('|')
-      );
-      if (proyectos.length === 1) {
-        $('#proyecto-incidencia-crear-modal').val(proyectos[0].nombre);
-        M.updateTextFields();
-      }
-    })
-    .catch(err);
+        if (proyectos.length === 1) {
+          $('#proyecto-incidencia-crear-modal').val(proyectos[0].nombre);
+          M.updateTextFields();
+        }
+      })
+      .catch(err);
+  }
 
   $('#modal-incidencia-crear form').off('submit', submitIncidencia);
   $('#modal-incidencia-crear form').on('submit', submitIncidencia);
@@ -211,8 +230,13 @@ function submitIncidencia(e: any) {
     .post('/incidencias/create', data)
     .then((id: any) => {
       if (!window.location.pathname.includes('/incidencias/grabar')) {
-        localStorage.esNuevaTarea = true;
-        location.href = `/tareas/tarea?id=${id.id}`;
+        if (isSGI) {
+          localStorage.esNuevaTarea = true;
+          location.href = `/tareas/tarea?id=${id.id}`;
+        } else {
+          msg('Reporte enviado. Nuestro equipo la resolverá lo antes posible.');
+          stop($('#loader-incidencia'));
+        }
       } else {
         window.close();
       }
@@ -229,30 +253,37 @@ function grabarPantalla() {
     'status=no,width=1260,height=900'
   );
   win.addEventListener('load', () => {
-    const descripcion = win.document.getElementById(
-      'descripcion-incidencia-crear-modal'
-    );
-    const tipo = win.document.getElementById('tipo-incidencia-crear-modal');
-    const proyecto = win.document.getElementById(
-      'proyecto-incidencia-crear-modal'
-    );
-    const descripcionLabel = win.document.getElementById(
-      'descripcion-incidencia-crear-label'
-    );
-    const proyectoLabel = win.document.getElementById(
-      'proyecto-incidencia-crear-label'
-    );
-    const info = win.document.getElementById('info-incidencia-modal');
-    descripcion.value = $('#descripcion-incidencia-crear-modal').val();
-    descripcionLabel.classList.add('active');
-    tipo.value = $('#tipo-incidencia-crear-modal').val();
-    proyecto.value = $('#proyecto-incidencia-crear-modal').val();
-    proyectoLabel.classList.add('active');
-    info.value = JSON.stringify(getDataExtraIncidencia());
-    if ($('#img-capturar-incidencia').el().src.includes('data:image/png')) {
-      const img = win.document.getElementById('img-capturar-incidencia');
-      img.src = $('#img-capturar-incidencia').el().src;
-    }
+    setTimeout(() => {
+      const descripcion = win.document.getElementById(
+        'descripcion-incidencia-crear-modal'
+      );
+      const tipo = win.document.getElementById('tipo-incidencia-crear-modal');
+
+      const descripcionLabel = win.document.getElementById(
+        'descripcion-incidencia-crear-label'
+      );
+      const proyectoLabel = win.document.getElementById(
+        'proyecto-incidencia-crear-label'
+      );
+      const info = win.document.getElementById('info-incidencia-modal');
+      descripcion.value = $('#descripcion-incidencia-crear-modal').val();
+      descripcionLabel.classList.add('active');
+      tipo.value = $('#tipo-incidencia-crear-modal').val();
+
+      if (isSGI) {
+        const proyecto = win.document.getElementById(
+          'proyecto-incidencia-crear-modal'
+        );
+        proyecto.value = $('#proyecto-incidencia-crear-modal').val();
+        proyectoLabel.classList.add('active');
+      }
+
+      info.value = JSON.stringify(getDataExtraIncidencia());
+      if ($('#img-capturar-incidencia').el().src.includes('data:image/png')) {
+        const img = win.document.getElementById('img-capturar-incidencia');
+        img.src = $('#img-capturar-incidencia').el().src;
+      }
+    }, 1000);
   });
 }
 
@@ -287,7 +318,9 @@ function closeModal() {
 function getDataExtraIncidencia() {
   return {
     tipoIncidencia: $('#tipo-incidencia-crear-modal').val(),
-    proyectoId: tradProyectos[$('#proyecto-incidencia-crear-modal').val()],
+    proyectoId: isSGI
+      ? tradProyectos[$('#proyecto-incidencia-crear-modal').val()]
+      : null,
     descripcionCliente: $('#descripcion-incidencia-crear-modal').val(),
     historial: JSON.parse(localStorage?.history || '[]').slice(-10),
     url: { href: window.location.href },
@@ -307,6 +340,16 @@ function start(node: any, callback?: () => void) {
       window.requestAnimationFrame(() => {
         if (callback) callback();
       });
+    });
+  });
+}
+
+function stop(node: any) {
+  window.requestAnimationFrame(() => {
+    node.find('.loading').css('opacity', '0');
+    window.requestAnimationFrame(() => {
+      setTimeout(() => $('.loading').css('display', 'none'), 1000);
+      node.find('.loading-progress').text(' ');
     });
   });
 }
