@@ -21,6 +21,24 @@ function incidencia(
   gApi = api;
   gErr = err;
   msg = message;
+
+  if (!isSGI) {
+    api
+      .get('/incidencias', null, true)
+      .then((data: any) => {
+        if (!data || data.error === 'Insufficient permission') return;
+        $('#sidenav .create-incidencia').removeClass('hide');
+        $('.context-menu').addClass('context-menu-big');
+        $('.context-menu .menu-options').appendChild(
+          $('<li class="menu-option create-incidencia">Reportar a DPS</li>')
+        );
+        $('.create-incidencia').onClick(() => {
+          M.Modal.getInstance($('#modal-incidencia-crear').el()).open();
+        });
+      })
+      .catch(err);
+  }
+
   $('#modal-incidencia-crear').removeMe();
   $('#loader-incidencia').removeMe();
   $('body').appendChild(
@@ -176,7 +194,6 @@ function incidencia(
       .get('/incidencias/proyectos')
       .then(({ proyectos }: any) => {
         const datalist = $('#proyecto-incidencia-list-crear-modal');
-        console.log(proyectos, datalist);
         proyectos.forEach((p: any) => {
           tradProyectos[p.nombre] = p.id;
           datalist.appendChild(

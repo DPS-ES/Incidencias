@@ -1,11 +1,17 @@
-function incidenciaCliente(
-  router: any,
-  err: any,
-  axios: any,
-  dpsUrl: any,
-  token: any
-) {
-  router.post('/create', (req: any, res: any) =>
+const axios = require('axios');
+
+function routerIncidencias(router: any, err: any, dpsUrl: any, token: any) {
+  router.get('/incidencias', (req: any, res: any) =>
+    havePermissionIncidencias(req, res).catch((error: any) =>
+      err(req, res, error)
+    )
+  );
+
+  async function havePermissionIncidencias(req: any, res: any) {
+    res.send({ status: 'ok' });
+  }
+
+  router.post('/incidencias/create', (req: any, res: any) =>
     nuevaIncidencia(req, res).catch((error) => err(req, res, error))
   );
 
@@ -19,17 +25,28 @@ function incidenciaCliente(
     delete req.body.inputs['tipo-incidencia-crear-modal'];
     delete req.body.inputs['proyecto-incidencia-crear-modal'];
     delete req.body.inputs['info-incidencia-modal'];
-    console.log(req.body);
-    // await axios({
-    //   method: 'post',
-    //   url: `${dpsUrl}/api/exposed/${token}/incidencia`,
-    //   data: req.body,
-    // }).catch((error: any) => {
-    //   err(error);
-    //   return null;
-    // });
+    await axios({
+      method: 'post',
+      url: `${dpsUrl}/api/exposed/${token}/incidencia`,
+      data: req.body,
+    }).catch((error: any) => {
+      err(error);
+      return null;
+    });
     res.send({ status: 'ok' });
   }
 }
 
-export { incidenciaCliente };
+//
+
+// const { routerIncidencias } = require('incidencias/lib/backend/incidencia');
+
+// routerIncidencias(
+//   router,
+//   err,
+//   axios,
+//   ,
+//
+// );
+
+export { routerIncidencias };

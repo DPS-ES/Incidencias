@@ -1,2 +1,2 @@
-declare function incidenciaCliente(router: any, err: any, axios: any, dpsUrl: any, token: any): void;
-export { incidenciaCliente };
+declare function routerIncidencias(router: any, err: any, dpsUrl: any, token: any): void;
+export { routerIncidencias };
