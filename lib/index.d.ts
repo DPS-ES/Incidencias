@@ -1,2 +1,3 @@
-declare function incidencias(jquery: any, materialize: any, api: any, err: any): void;
-export { incidencias };
+import * as incidencia from './incidencia';
+import * as grabarIncidencia from './grabarIncidencia';
+export { incidencia, grabarIncidencia };
