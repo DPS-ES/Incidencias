@@ -29,7 +29,6 @@ function routerIncidencias(
     };
     if (isSGI) {
       req.body.whoami.cliente = req.session.cliente;
-      req.body.project = req.session.proyectoId;
       req.body.creador = { id: req.session.userid, tipo: false };
     }
     delete req.body.inputs['descripcion-incidencia-crear-modal'];
