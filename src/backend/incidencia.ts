@@ -44,7 +44,7 @@ function routerIncidencias(
       return null;
     });
     if (isSGI) {
-      res.send({ id: incidencia.id });
+      res.send({ id: incidencia.data.id });
     } else {
       res.send({ status: 'ok' });
     }
