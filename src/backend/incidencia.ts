@@ -1,6 +1,12 @@
 const axios = require('axios');
 
-function routerIncidencias(router: any, err: any, dpsUrl: any, token: any) {
+function routerIncidencias(
+  isSGI: any,
+  router: any,
+  err: any,
+  dpsUrl: any,
+  token: any
+) {
   router.get('/incidencias', (req: any, res: any) =>
     havePermissionIncidencias(req, res).catch((error: any) =>
       err(req, res, error)
@@ -21,11 +27,16 @@ function routerIncidencias(router: any, err: any, dpsUrl: any, token: any) {
       name: req.session.name,
       email: req.session.email,
     };
+    if (isSGI) {
+      req.body.whoami.cliente = req.session.cliente;
+      req.body.project = req.session.proyectoId;
+      req.body.creador = { id: req.session.userid, tipo: false };
+    }
     delete req.body.inputs['descripcion-incidencia-crear-modal'];
     delete req.body.inputs['tipo-incidencia-crear-modal'];
     delete req.body.inputs['proyecto-incidencia-crear-modal'];
     delete req.body.inputs['info-incidencia-modal'];
-    await axios({
+    const incidencia = await axios({
       method: 'post',
       url: `${dpsUrl}/api/exposed/${token}/incidencia`,
       data: req.body,
@@ -33,20 +44,12 @@ function routerIncidencias(router: any, err: any, dpsUrl: any, token: any) {
       err(error);
       return null;
     });
-    res.send({ status: 'ok' });
+    if (isSGI) {
+      res.send({ id: incidencia.id });
+    } else {
+      res.send({ status: 'ok' });
+    }
   }
 }
-
-//
-
-// const { routerIncidencias } = require('incidencias/lib/backend/incidencia');
-
-// routerIncidencias(
-//   router,
-//   err,
-//   axios,
-//   ,
-//
-// );
 
 export { routerIncidencias };
