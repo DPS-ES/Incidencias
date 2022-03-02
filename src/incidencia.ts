@@ -5,7 +5,7 @@ let gApi: any;
 let gErr: any;
 
 function incidencia(jquery: any, materialize: any, api: any, err: any) {
-  tradProyectos = [];
+  tradProyectos = {};
   $ = jquery;
   M = materialize;
   gApi = api;
@@ -154,27 +154,31 @@ function incidencia(jquery: any, materialize: any, api: any, err: any) {
     M.Sidenav.getInstance($('#sidenav').el()).close();
   });
 
-  // api
-  //   .get('/incidencias/proyectos')
-  //   .then(({ proyectos }) => {
-  //     tradProyectos = insertOptions(
-  //       $('#proyecto-incidencia-list-crear-modal'),
-  //       proyectos,
-  //       true,
-  //       (v) => v.nombre
-  //     );
-  //     $('#proyecto-incidencia-crear-modal').prop(
-  //       'pattern',
-  //       proyectos
-  //         .map((item) => item.nombre.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&'))
-  //         .join('|')
-  //     );
-  //     if (proyectos.length === 1) {
-  //       $('#proyecto-incidencia-crear-modal').val(proyectos[0].nombre);
-  //       M.updateTextFields();
-  //     }
-  //   })
-  //   .catch(err);
+  api
+    .get('/incidencias/proyectos')
+    .then(({ proyectos }: any) => {
+      const datalist = $('#proyecto-incidencia-list-crear-modal');
+      console.log(proyectos, datalist);
+      proyectos.forEach((p: any) => {
+        tradProyectos[p.nombre] = p.id;
+        datalist.appendChild(
+          $(`<option value="${p.nombre}">${p.nombre}</option>`)
+        );
+      });
+      $('#proyecto-incidencia-crear-modal').prop(
+        'pattern',
+        proyectos
+          .map((item: any) =>
+            item.nombre.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')
+          )
+          .join('|')
+      );
+      if (proyectos.length === 1) {
+        $('#proyecto-incidencia-crear-modal').val(proyectos[0].nombre);
+        M.updateTextFields();
+      }
+    })
+    .catch(err);
 
   $('#modal-incidencia-crear form').off('submit', submitIncidencia);
   $('#modal-incidencia-crear form').on('submit', submitIncidencia);
