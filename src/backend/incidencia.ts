@@ -5,7 +5,8 @@ function routerIncidencias(
   router: any,
   err: any,
   dpsUrl: any,
-  token: any
+  token: any,
+  callbackPermission: any
 ) {
   router.get('/incidencias', (req: any, res: any) =>
     havePermissionIncidencias(req, res).catch((error: any) =>
@@ -14,7 +15,11 @@ function routerIncidencias(
   );
 
   async function havePermissionIncidencias(req: any, res: any) {
-    res.send({ status: 'ok' });
+    if (callbackPermission(req)) {
+      res.send({ status: 'ok' });
+    } else {
+      res.send({ error: 'Insuficient permissions' });
+    }
   }
 
   router.post('/incidencias/create', (req: any, res: any) =>
@@ -51,4 +56,9 @@ function routerIncidencias(
   }
 }
 
-export { routerIncidencias };
+const permIncidencias = {
+  static: ['^/incidencias/grabar(/(index.html)?)?$'],
+  api: ['^/incidencias$', '^/incidencias/create$', '^/incidencias/proyectos$'],
+};
+
+export { routerIncidencias, permIncidencias };

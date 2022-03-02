@@ -7,7 +7,7 @@ let gApi: any;
 let gErr: any;
 
 function incidencia(
-  sgi: any,
+  options: any,
   jquery: any,
   materialize: any,
   api: any,
@@ -15,29 +15,22 @@ function incidencia(
   message: any
 ) {
   tradProyectos = {};
-  isSGI = sgi;
+  isSGI = options.sgi;
   $ = jquery;
   M = materialize;
   gApi = api;
   gErr = err;
   msg = message;
 
-  if (!isSGI) {
+  if (options.showIfPerm) {
     api
       .get('/incidencias', null, true)
       .then((data: any) => {
-        if (!data || data.error === 'Insufficient permission') return;
-        $('#sidenav .create-incidencia').removeClass('hide');
-        $('.context-menu').addClass('context-menu-big');
-        $('.context-menu .menu-options').appendChild(
-          $('<li class="menu-option create-incidencia">Reportar a DPS</li>')
-        );
-        $('.create-incidencia').onClick(() => {
-          M.Modal.getInstance($('#modal-incidencia-crear').el()).open();
-        });
+        if (!data || data.status !== 'ok') return;
+        showIncidencia();
       })
       .catch(err);
-  }
+  } else showIncidencia();
 
   $('#modal-incidencia-crear').removeMe();
   $('#loader-incidencia').removeMe();
@@ -347,6 +340,17 @@ function getDataExtraIncidencia() {
       ).map((e: any) => [e.id || e.name, e.value])
     ),
   };
+}
+
+function showIncidencia() {
+  $('#sidenav .create-incidencia').removeClass('hide');
+  $('.context-menu').addClass('context-menu-big');
+  $('.context-menu .menu-options').appendChild(
+    $('<li class="menu-option create-incidencia">Reportar a DPS</li>')
+  );
+  $('.create-incidencia').onClick(() => {
+    M.Modal.getInstance($('#modal-incidencia-crear').el()).open();
+  });
 }
 
 function start(node: any, callback?: () => void) {
