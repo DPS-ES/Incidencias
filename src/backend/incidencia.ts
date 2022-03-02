@@ -15,11 +15,9 @@ function routerIncidencias(
   );
 
   async function havePermissionIncidencias(req: any, res: any) {
-    if (callbackPermission(req)) {
-      res.send({ status: 'ok' });
-    } else {
-      res.send({ error: 'Insuficient permissions' });
-    }
+    const perm = await callbackPermission(req);
+    if (perm) res.send({ status: 'ok' });
+    else res.send({ error: 'Insuficient permissions' });
   }
 
   router.post('/incidencias/create', (req: any, res: any) =>
