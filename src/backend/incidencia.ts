@@ -1,12 +1,11 @@
 const axios = require('axios');
 
 function routerIncidencias(
-  isSGI: any,
+  options: any,
   router: any,
   err: any,
   dpsUrl: any,
-  token: any,
-  callbackPermission: any
+  token: any
 ) {
   router.get('/incidencias', (req: any, res: any) =>
     havePermissionIncidencias(req, res).catch((error: any) =>
@@ -15,7 +14,7 @@ function routerIncidencias(
   );
 
   async function havePermissionIncidencias(req: any, res: any) {
-    const perm = await callbackPermission(req);
+    const perm = await options.callbackPermission(req);
     if (perm) res.send({ status: 'ok' });
     else res.send({ error: 'Insuficient permissions' });
   }
@@ -30,7 +29,7 @@ function routerIncidencias(
       name: req.session.name,
       email: req.session.email,
     };
-    if (isSGI) {
+    if (options.sgi) {
       req.body.whoami.cliente = req.session.cliente;
       req.body.creador = { id: req.session.userid, tipo: false };
     }
@@ -46,7 +45,7 @@ function routerIncidencias(
       err(error);
       return null;
     });
-    if (isSGI) {
+    if (options.sgi) {
       res.send({ id: incidencia.data.id });
     } else {
       res.send({ status: 'ok' });

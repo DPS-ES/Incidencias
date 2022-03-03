@@ -1,0 +1,28 @@
+Modularización de incidencias
+
+Pasos:
+
+- Frontend:
+
+-- Añadir dos archivos a src (lib/incidencias.html y lib/incidencias.js). Estos archivos servirán para la pantalla de grabación
+
+-- Añadir entrada de addPage en webpack common.
+addPage('lib/incidencias', 'incidencias/grabar', 'index');
+
+-- Añadir incidencias() en common.js dentro de preInit para insertar el modal. El primer parámetro es un objeto que tiene las siguientes keys
+--- sgi (boolean): true -> estamos en la aplicación del SGI de DPS | false -> plataforma de un cliente
+--- showIfPerm (boolean): true -> para mostrarse debe cumplir una condición en el backend (ver routerIncidencias) | false -> se muestran las entradas del sidenav y context-menu siempre
+import { incidencia } from 'incidencias/lib/incidencia';
+incidencia({ sgi: boolean, showIfPerm: boolean }, $, M, api, err, msg);
+
+- Backend
+
+-- Permisos: En api/helpers/perms añadir al final del array static common: ...permIncidencias.static y del array apiCommon: ...permIncidencias.api. Esto incluye los permisos necesarios para utilizar incidencias (si, una persona aunque tenga oculto el botón de crear incidencia puede crear la incidencia si consigue mostrar el modal. Si hace esto, contratadle).
+const { permIncidencias } = require('incidencias/lib/backend/incidencia');
+
+-- Añadir rutas en api/index.js. La función será así:
+routerIncidencias({ sgi: boolean, callbackPerm: function }, router, err, process.env.DPS_URL, process.env.DPS_TOKEN);
+--- sgi: true -> estamos en la aplicación del SGI de DPS | false -> plataforma de un cliente
+--- callbackPermission(req): si devuelve true -> se muestra incidencias | false -> no se muestra. La función solo la tenemos que poner si ponemos true en el front: showIfPerm.
+--- DPS_URL=https://sgi.dpsconsulting.es
+--- DPS_TOKEN=XXXXX serie de números y letras de unos 40 caracteres. Es único de cada proyecto y sirve para que cuando se cree la incidencia, se sepa que proyecto la ha creado. Este token está en la BBDD -> [PROYECTOS] -> [TOKEN]

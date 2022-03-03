@@ -1,4 +1,4 @@
-declare function routerIncidencias(isSGI: any, router: any, err: any, dpsUrl: any, token: any, callbackPermission: any): void;
+declare function routerIncidencias(options: any, router: any, err: any, dpsUrl: any, token: any): void;
 declare const permIncidencias: {
     static: string[];
     api: string[];
