@@ -70,7 +70,6 @@ function incidencia(
             <a class="waves-effect waves-light btn teal" id="grabar-pantalla-incidencia">Grabar pantalla</a>
             <a class="waves-effect waves-light btn brown" id="capturar-pantalla-incidencia">Capturar pantalla</a>
           </div>
-          <p class="text-center">Puede subir archivos adjuntos cuando termine de rellenar este formulario y pulse "Reportar".</p>
           <video id="video-capturar-incidencia" autoplay playsinline muted></video>
           <canvas id="canvas-capturar-incidencia" class="hide"></canvas>
           <input id="info-incidencia-modal" class="hide"></input>
